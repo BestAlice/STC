@@ -8,28 +8,26 @@
 #include <string.h>
 #include <stdio.h>
 #include <cstring>
+#include "math.h"
 
 
-const int DELAY = 1;
 
 std::shared_ptr<std::vector<int>> freq_synth(const std::vector<int> & data, int sampling_rate, int t ){
     //calculate number of samples
     int sample_count = t*sampling_rate;
+    int freq_size = data.size();
 
     std::vector<int> out;
     //fill out until the filter starts working
-    for (int i = 0; i < DELAY; ++i) {
-        out.insert(
-                out.begin() + i,
-                data[i]
-                   );
+    for (int i = 0; i < freq_size; ++i) {
+        out.push_back(data[i%freq_size]);
     }
 
     //Karplus-Strong string synthesis
-    for (int i = DELAY; i < sample_count; ++i) {
-        out.insert(
-                out.begin() + i,
-                data[i]+(sample_count-i)* out[i-DELAY] /sample_count  // filter just is linear fading function
+    for (int i = freq_size; i < sample_count; ++i) {
+
+        out.push_back(
+                out[i-freq_size]*3/4  // filter
                 );
     }
 
@@ -93,7 +91,7 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
 
 
 int main(){
-    std::vector<int> data {800, 750, 764, 851, 600, 700, 650, 230};
+    std::vector<int> data {800, 750, 764, 851};
     std::vector<int> new_data = *freq_synth(data, 8, 1);
 
     for (int i = 0; i < new_data.size(); ++i) {
