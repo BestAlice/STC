@@ -92,12 +92,12 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
 
 int main(){
     std::vector<int> data {800, 750, 764, 851};
-    std::vector<int> new_data = *freq_synth(data, 8, 1);
+    std::vector<int> new_data = *freq_synth(data, 100, 1);
 
     for (int i = 0; i < new_data.size(); ++i) {
         std::cout << new_data[i] << std::endl;
     }
 
-    save_data_to_wav(new_data, 8,  "best_music");
+    save_data_to_wav(new_data, 100,  "best_music");
     return 0;
 }
