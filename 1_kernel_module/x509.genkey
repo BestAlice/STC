@@ -1,0 +1,17 @@
+[ req ]
+default_bits = 4096
+distinguished_name = my_dummy_device
+prompt = no
+string_mask = utf8only
+x509_extensions = extensions
+
+[ my_dummy_device ]
+O = Example, Inc.
+CN = Example, Inc. Kernel signing key
+emailAddress = dima@example.com
+
+[ extensions ]
+basicConstraints=critical,CA:FALSE
+keyUsage=digitalSignature
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid

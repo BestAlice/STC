@@ -10,11 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dcbeb91f-d50c-4070-9312-4eebd8cfcd2a" name="Changes" comment="9 RDM">
+      <change afterPath="$PROJECT_DIR$/1_kernel_module/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/1_kernel_module/dummy_register.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/1_kernel_module/my_dummy_device.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/6_freq_synth/best_music.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/6_freq_synth/freq_synth.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/6_freq_synth/freq_synth.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/6_freq_synth/freq_synth.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,12 +27,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "BestAlice"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;BestAlice&quot;
   }
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings">
     <option name="selectedUrlAndAccountId">
       <UrlAndAccount>
@@ -61,7 +61,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/User/Desktop/Study/Work/STC&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/alis/Desktop/Work/STC&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -107,6 +107,9 @@
       <workItem from="1701688914930" duration="6644000" />
       <workItem from="1701701899094" duration="9033000" />
       <workItem from="1701790683175" duration="1152000" />
+      <workItem from="1701859889746" duration="4775000" />
+      <workItem from="1701867593219" duration="3402000" />
+      <workItem from="1701871390022" duration="6639000" />
     </task>
     <task id="LOCAL-00001" summary="9 RDM">
       <option name="closed" value="true" />
