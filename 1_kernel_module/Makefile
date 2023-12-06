@@ -6,10 +6,11 @@ PWD := $(shell pwd)
 
 default:
 	$(MAKE) -C $(KERN_DIR) M=$(PWD) modules
+	#rm -rf  *~ core .depend .*.cmd  *.mod.c .tmp_versions *.order *.symvers *.mod
 
 clean:
-	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions *.order *.symvers *.mod
-	make -C /lib/modules/$(shell uname -r) M=$(PWD) clean
+	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions *.order *.symvers *.mod *.mod.o
+
     #
 
 #obj-m += my_dummy_device.o
