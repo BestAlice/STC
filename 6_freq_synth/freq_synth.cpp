@@ -27,6 +27,8 @@ std::shared_ptr<std::vector<int>> freq_synth(const std::vector<int> & data, int 
     for (int i = freq_size; i < sample_count; ++i) {
 
         out.push_back(
+                data[i%freq_size]
+                +
                 out[i-freq_size]*3/4  // filter
                 );
     }
@@ -40,6 +42,7 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
 
     FILE *fp;
 
+    //create filename
     char filename[100];
     std::strcpy(filename, title);
     std::strcat(filename, ".wav");
@@ -51,7 +54,7 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
         return 0;
     }
 
-
+    //vars for header
     size_t file_size = data.size()*sizeof(short) + 44;
     unsigned long chunkSize = file_size - 8;
     unsigned long subchunk1Size = 16;
@@ -91,6 +94,7 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
 
 
 int main(){
+    //create freq vector
     std::vector<int> data {800, 750, 764, 851};
     std::vector<int> new_data = *freq_synth(data, 100, 1);
 
