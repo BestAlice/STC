@@ -9,36 +9,47 @@
 #include <stdio.h>
 #include <cstring>
 #include "math.h"
+#include<algorithm>
 
+//comparator for norm
+bool compare(int a , int b){
+    return abs(a) < abs(b);
+}
 
-
-std::shared_ptr<std::vector<int>> freq_synth(const std::vector<int> & data, int sampling_rate, int t ){
+template<typename T>
+std::shared_ptr<std::vector<short>> freq_synth(const std::vector<T> & data, int sampling_rate, int t ){
     //calculate number of samples
     int sample_count = t*sampling_rate;
     int freq_size = data.size();
 
-    std::vector<int> out;
+    std::vector<T> new_samples;
     //fill out until the filter starts working
     for (int i = 0; i < freq_size; ++i) {
-        out.push_back(data[i%freq_size]);
+        new_samples.push_back(data[i%freq_size]);
     }
+
+
 
     //Karplus-Strong string synthesis
     for (int i = freq_size; i < sample_count; ++i) {
-
-        out.push_back(
-                data[i%freq_size]
-                +
-                out[i-freq_size]*3/4  // filter
+        new_samples.push_back(
+                new_samples[i-freq_size]*3/4  // filter
                 );
     }
+    //norm and cast to in16 (short)
+    std::vector<short> out;
+    auto itr = max_element ( new_samples.begin() , new_samples.end() , compare );
+    T norm = *itr;
+    for (int i = 0; i < sample_count; ++i) {
+        out.push_back( new_samples[i] * 32767 / norm  );
+    }
 
-    return std::make_shared<std::vector<int>>(out);
+    return std::make_shared<std::vector<short>>(out);
 }
 
 
 
-bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const char* title){
+bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const char* title){
 
     FILE *fp;
 
@@ -84,7 +95,7 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
     //write data
     short buff;
     for (int i = 0; i < data.size(); ++i) {
-        buff = (short)data[i];
+        buff = data[i];
         fwrite(&buff,sizeof(short),1,fp);
     }
     fclose(fp);
@@ -96,7 +107,7 @@ bool save_data_to_wav(const std::vector<int> & data, int sampling_rate, const ch
 int main(){
     //create freq vector
     std::vector<int> data {800, 750, 764, 851};
-    std::vector<int> new_data = *freq_synth(data, 100, 1);
+    std::vector<short> new_data = *freq_synth(data, 100, 1);
 
     for (int i = 0; i < new_data.size(); ++i) {
         std::cout << new_data[i] << std::endl;
