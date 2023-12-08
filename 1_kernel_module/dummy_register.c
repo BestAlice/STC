@@ -27,12 +27,15 @@ int dummy_register_init(void){
     //create device
     my_dummy_device_init();
 
+    //register device
     int err, devno = MKDEV(dummy_major, 0);
     err = cdev_add(dummy->cdev, devno, 1);
     // Fail gracefully if need be.
-    if (err)
-        printk(KERN_NOTICE "Error %d adding dummy%d", err, 0);
-    else
+    if (err) {
+        printk(KERN_NOTICE
+        "Error %d adding dummy%d", err, 0);
+        my_dummy_device_exit();
+    } else
         printk(KERN_INFO "dummy: %d add success\n", 0);
 
     return 0;
