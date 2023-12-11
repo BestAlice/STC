@@ -5,43 +5,62 @@
 #include <memory>
 #include <vector>
 #include <fstream>
-#include <string.h>
-#include <stdio.h>
-#include <cstring>
-#include "math.h"
-#include<algorithm>
+#include <algorithm>
+#include <random>
+#include "wav.h"
 
-//comparator for norm
-bool compare(int a , int b){
-    return abs(a) < abs(b);
-}
-
-template<typename T>
-std::shared_ptr<std::vector<short>> freq_synth(const std::vector<T> & data, int sampling_rate, int t ){
+std::shared_ptr<std::vector<short>> karplus_strong_synthesis(const std::vector<int> & freqs, int sampling_rate, int t ){
     //calculate number of samples
     int sample_count = t*sampling_rate;
-    int freq_size = data.size();
+    //extinction coefficient
+    int ext_coef = 97; // in percents
 
-    std::vector<T> new_samples;
-    //fill out until the filter starts working
-    for (int i = 0; i < freq_size; ++i) {
-        new_samples.push_back(data[i%freq_size]);
+    // generate white noise
+    std::vector<int> white_noise(30); //sampling_rate/ min_freq
+    std::generate( white_noise.begin(), white_noise.end(), [freqs]()->int{
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dist(-1000,1000);
+        return dist(gen)/freqs.size();
+    });
+
+    std::vector<int> int_out(t*sampling_rate);
+    int sample;
+    int sample_time;
+    int length;
+
+    //Karplus-Strong string synthesis for every frequency
+    for (int current_freq : freqs) {
+        sample_time = sampling_rate/current_freq;
+        length = current_freq * t;
+
+        // create vector for one of frequencies
+        std::vector<int> current_freq_samples(length);
+
+        //insert white noise
+        if (white_noise.size() < length)
+            current_freq_samples.insert(current_freq_samples.begin(), white_noise.begin(), white_noise.end());
+        else
+            current_freq_samples.insert(current_freq_samples.begin(), white_noise.begin(), white_noise.begin()+length);
+
+        //filter work
+        for (auto sample_num = white_noise.size(); sample_num < length; ++sample_num) {
+            sample =  current_freq_samples[sample_num - white_noise.size()] * ext_coef /100;
+            current_freq_samples[sample_num] = sample;
+            for (int i = 0; i < sample_time; ++i) {
+                int_out[sample_num*sample_time + i] += sample;
+            }
+        }
     }
 
+    //output signal
+    std::vector<short> out(t*sampling_rate);
 
-
-    //Karplus-Strong string synthesis
-    for (int i = freq_size; i < sample_count; ++i) {
-        new_samples.push_back(
-                new_samples[i-freq_size]*3/4  // filter
-                );
-    }
     //norm and cast to in16 (short)
-    std::vector<short> out;
-    auto itr = max_element ( new_samples.begin() , new_samples.end() , compare );
-    T norm = *itr;
+    int norm = *max_element ( int_out.begin() , int_out.end() ,
+                              [](int a , int b)->bool{ return abs(a) < abs(b); });
     for (int i = 0; i < sample_count; ++i) {
-        out.push_back( new_samples[i] * 32767 / norm  );
+        out[i]  = (short)(int_out[i] * 32767 / norm);
     }
 
     return std::make_shared<std::vector<short>>(out);
@@ -49,70 +68,42 @@ std::shared_ptr<std::vector<short>> freq_synth(const std::vector<T> & data, int 
 
 
 
-bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const char* title){
+bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const std::string title){
 
-    FILE *fp;
-
-    //create filename
-    char filename[100];
-    std::strcpy(filename, title);
-    std::strcat(filename, ".wav");
-
-    fp = fopen(filename, "wb");
-
-    if(fp == NULL) {
-        std::cerr << "file can't be opened\n";
-        return 0;
-    }
+    //output stream
+    std::ofstream out(title + ".wav", std::ifstream::binary);
 
     //vars for header
+    WAV_HEADER wav_hdr;
     size_t file_size = data.size()*sizeof(short) + 44;
-    unsigned long chunkSize = file_size - 8;
-    unsigned long subchunk1Size = 16;
-    unsigned long audioFormat = 1;
-    unsigned short numChannels = 1;
-    unsigned long sampleRate = sampling_rate;
-    unsigned long byteRate = sampling_rate * 2;
-    unsigned short blockAlign = 2;
-    unsigned short bitsPerSample = 16;
-    unsigned long subchunk2Size = data.size()*sizeof(short);
+    wav_hdr.ChunkSize = file_size - 8;
+    wav_hdr.Subchunk1Size = 16;
+    wav_hdr.AudioFormat = 1;
+    wav_hdr.NumOfChan = 1;
+    wav_hdr.SamplesPerSec = sampling_rate;
+    wav_hdr.bytesPerSec = sampling_rate * 2;
+    wav_hdr.blockAlign = 2;
+    wav_hdr.bitsPerSample = 16;
+    wav_hdr.Subchunk2Size = data.size()*sizeof(short);
 
-    //write Header
-    fwrite("RIFF",4,1,fp);
-    fwrite(&chunkSize,4,1,fp);
-    fwrite("WAVE",4,1,fp);
-    fwrite( "fmt ",4,1,fp);
-    fwrite( &subchunk1Size,4,1,fp);
-    fwrite( &audioFormat,4,1,fp);
-    fwrite( &numChannels,2,1,fp);
-    fwrite(&sampleRate,4,1,fp);
-    fwrite(&byteRate,4,1,fp);
-    fwrite(&blockAlign,2,1,fp);
-    fwrite(&bitsPerSample,2,1,fp);
-    fwrite("data" ,4,1,fp);
-    fwrite(&subchunk2Size,4,1,fp);
+    //write header
+    out.write(reinterpret_cast<const char *>(&wav_hdr), sizeof(wav_hdr));
 
     //write data
     short buff;
-    for (int i = 0; i < data.size(); ++i) {
+    for (int i = 0; i <data.size(); ++i) {
         buff = data[i];
-        fwrite(&buff,sizeof(short),1,fp);
+        out.write(reinterpret_cast<char *>(&buff), sizeof(short));
     }
-    fclose(fp);
 
-    return 1;
+    return 0;
 }
 
 
 int main(){
     //create freq vector
-    std::vector<int> data {800, 750, 764, 851};
-    std::vector<short> new_data = *freq_synth(data, 100, 1);
-
-    for (int i = 0; i < new_data.size(); ++i) {
-        std::cout << new_data[i] << std::endl;
-    }
-
-    save_data_to_wav(new_data, 100,  "best_music");
+    std::vector<int> freqs {2000, 500};
+    std::vector<short> signal = *karplus_strong_synthesis(freqs, 48000, 4);
+    save_data_to_wav(signal, 48000,  "best_music");
     return 0;
 }
