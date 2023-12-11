@@ -68,7 +68,7 @@ std::shared_ptr<std::vector<short>> karplus_strong_synthesis(const std::vector<i
 
 
 
-bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const std::string title){
+bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const std::string & title){
 
     //output stream
     std::ofstream out(title + ".wav", std::ifstream::binary);
@@ -96,7 +96,7 @@ bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const 
         out.write(reinterpret_cast<char *>(&buff), sizeof(short));
     }
 
-    return 0;
+    return true;
 }
 
 
