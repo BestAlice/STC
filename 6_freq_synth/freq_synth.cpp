@@ -9,7 +9,7 @@
 #include <random>
 #include "wav.h"
 
-std::shared_ptr<std::vector<short>> karplus_strong_synthesis(const std::vector<int> & freqs, int sampling_rate, int t ){
+std::vector<short> karplus_strong_synthesis(const std::vector<int> & freqs, int sampling_rate, int t ){
     //calculate number of samples
     int sample_count = t*sampling_rate;
     //extinction coefficient
@@ -63,7 +63,7 @@ std::shared_ptr<std::vector<short>> karplus_strong_synthesis(const std::vector<i
         out[i]  = (short)(int_out[i] * 32767 / norm);
     }
 
-    return std::make_shared<std::vector<short>>(out);
+    return out;
 }
 
 
@@ -103,7 +103,7 @@ bool save_data_to_wav(const std::vector<short> & data, int sampling_rate, const 
 int main(){
     //create freq vector
     std::vector<int> freqs {2000, 500};
-    std::vector<short> signal = *karplus_strong_synthesis(freqs, 48000, 4);
+    std::vector<short> signal = karplus_strong_synthesis(freqs, 48000, 4);
     save_data_to_wav(signal, 48000,  "best_music");
     return 0;
 }
