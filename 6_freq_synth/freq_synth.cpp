@@ -17,9 +17,9 @@ std::vector<short> karplus_strong_synthesis(const std::vector<int> & freqs, int 
 
     // generate white noise
     std::vector<int> white_noise(30); //sampling_rate/ min_freq
-    std::generate( white_noise.begin(), white_noise.end(), [freqs]()->int{
-        std::random_device rd;
-        std::mt19937 gen(rd());
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::generate( white_noise.begin(), white_noise.end(), [&freqs,&gen]()->int{
         std::uniform_int_distribution<> dist(-1000,1000);
         return dist(gen)/freqs.size();
     });
@@ -37,7 +37,7 @@ std::vector<short> karplus_strong_synthesis(const std::vector<int> & freqs, int 
         // create vector for one of frequencies
         std::vector<int> current_freq_samples(length);
 
-        //insert white noise
+        //insert white noise (with check on minimal track length)
         if (white_noise.size() < length)
             current_freq_samples.insert(current_freq_samples.begin(), white_noise.begin(), white_noise.end());
         else
